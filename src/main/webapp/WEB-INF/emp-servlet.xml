@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.directwebremoting.org/schema/spring-dwr http://www.directwebremoting.org/schema/spring-dwr-3.0.xsd 
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+	
+	<!--基于注解方式的开发使用-->
+	
+	<context:component-scan base-package="cn.test"/>
+	<mvc:annotation-driven />
+	
+			<!--配置2-2：切片配置，定义切片点，切片点的回滚、切入的函数等 -->
+	<aop:config>
+		<!--声明切片路径，该路径下的类将在执行前被注入切片方法 -->
+		<aop:pointcut id="hlcyService" expression="execution(* cn.test..*Service.*(..))" />
+
+		<!--切片方法，将被注入到切片路径中去 -->
+		<aop:aspect id="hlcyAspect" ref="empAop">
+			<aop:after pointcut-ref="hlcyService" method="updateIndex" />
+		</aop:aspect>
+	</aop:config>
+	<!--配置2-3：定义切片类 **按项目名称做调整 -->
+	<bean id="empAop" class="cn.test.aop.EmpAop" />
+	
+	<!-- freemarker config -->	
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+	  <property name="templateLoaderPath" value="/WEB-INF/hello/"/>
+	</bean>
+	
+	<!--
+	
+	  View resolvers can also be configured with ResourceBundles or XML files. If you need
+	  different view resolving based on Locale, you have to use the resource bundle resolver.
+	
+	-->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+	  <property name="cache" value="true"/>
+	  <property name="prefix" value=""/>
+	  <property name="suffix" value=".ftl"/>
+	</bean>
+	
+</beans>
